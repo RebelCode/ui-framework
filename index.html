@@ -7,5 +7,33 @@
   </head>
   <body>
     <div id="app"></div>
+    <div id="new-app">
+      <hello></hello>
+    </div>
+
+    <div class="next-app">
+      <hello></hello>
+    </div>
+
+    <div class="next-app">
+      <hello></hello>
+    </div>
+
+    <script type="text/x-template" id="template1">
+      <span>{{ translate('Test') }}</span>
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // get default configuration inside the Bottle instance
+
+        var NewApp = new App();
+        var bottle = NewApp.getDefaultBottle();
+        NewApp.init(bottle);
+      });
+    </script>
+
+    <!-- built files will be auto injected -->
+
   </body>
 </html>
