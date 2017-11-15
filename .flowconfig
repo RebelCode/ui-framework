@@ -1,0 +1,16 @@
+[include]
+.*/src/.*
+./index.html
+[ignore]
+.*/node_modules/.*
+.*/__tests__/.*
+.*/coverage/.*
+[libs]
+flow-typed
+
+[options]
+module.file_ext=.vue
+module.file_ext=.js
+module.file_ext=.css
+module.file_ext=.json
+module.name_mapper='^@\(.*\)$' -> '<PROJECT_ROOT>/src/\1'
