@@ -11,11 +11,14 @@ function resolve (dir) {
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
-    app: './test/temp/index.js'
+    'ui-framework': './src/main.js'
   },
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
+    libraryTarget: 'amd',
+    library: '[name]',
+    umdNamedDefine: true,
     publicPath: process.env.NODE_ENV === 'production'
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath
