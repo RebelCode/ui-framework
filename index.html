@@ -26,14 +26,61 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         // get default configuration inside the Bottle instance
+        require.config({
+          paths: {
+            textFormater: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
+            bottle: 'https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.6.1/bottle.min',
+            vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue.min'
+          }
+        });
 
-        var NewApp = new App();
-        var bottle = NewApp.getDefaultBottle();
-        NewApp.init(bottle);
+        function defineServices (di, dependecies) {
+          di.factory('translator', function () {
+            return new dependecies.UiFramework.I18n.FormatTranslator(dependecies.textFormater.sprintf)
+          })
+          di.factory('translate', function (container) {
+            return function (format, params, context) {
+              return container.translator.translate(format, params)
+            }
+          })
+          di.factory('selectorList', function () {
+            return [
+              '#app',
+              '#new-app',
+              '.next-app'
+            ]
+          })
+          di.factory('components', function () {
+            return {
+              hello: {
+                template: '#template1',
+                inject: ['translate']
+              }
+            }
+          })
+          di.factory('document', function () {
+            return document
+          })
+          di.factory('vue', function () {
+            return dependecies.vue
+          })
+        }
+
+        require(['ui-framework', 'textFormater', 'bottle', 'vue'], function(UiFramework, textFormater, bottle, vue) {
+
+          var di = new bottle()
+          defineServices(di, {
+            bottle: bottle,
+            UiFramework: UiFramework,
+            textFormater: textFormater,
+            vue: vue
+          })
+          var container = new UiFramework.Container.Container(di)
+          var NewApp = new UiFramework.Core.App(container)
+          NewApp.init()
+        });
       });
     </script>
-
-    <!-- built files will be auto injected -->
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.js"></script>
   </body>
 </html>
