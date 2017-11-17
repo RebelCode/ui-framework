@@ -1,20 +1,20 @@
 // @flow
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue'
-import DOM from '@/utils/DOM'
+
+import {Dom} from '@/dom'
 import { AppInterface } from '@/core/AppInterface'
 import {ContainerInterface} from '@/container/ContainerInterface'
 import {ExportCapableInterface} from '@/container/ExportCapableInterface'
 
-export default class AppContainer implements AppInterface {
+export default class App implements AppInterface {
   container = {};
   constructor (container: ContainerInterface & ExportCapableInterface) {
     this.container = container
   }
   registerVues (selectorList: Array<string>, components: Array<any>) {
     const elements = {}
-    const DOMManager = new DOM()
+    const domDocument = this.container.get('document')
+    const DOMManager = new Dom.Dom(domDocument)
+    const Vue = this.container.get('vue')
     selectorList.map((el) => {
       if (!elements[el]) {
         elements[el] = []
