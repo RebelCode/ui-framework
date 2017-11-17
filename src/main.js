@@ -1,14 +1,6 @@
 // @flow
-import bottle from '../test/temp/services/'
-import AppContainer from '@/core/App'
-import Container from '@/container/Container'
 
-export default class App {
-  init (bottle) {
-    const container = new Container(bottle)
-    return new AppContainer(container).init()
-  }
-  getDefaultBottle () {
-    return Object.assign(Object.create(bottle), bottle) // clone
-  }
-}
+export {Core} from '@/core'
+export {I18n} from '@/i18n'
+export {Container} from '@/container'
+export {Dom} from '@/dom'
