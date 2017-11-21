@@ -8,20 +8,30 @@
   <body>
     <div id="app"></div>
     <div id="new-app">
-      <hello></hello>
+      <hello inline-template>
+        <span>
+          {{ translate('Test') }}
+        </span>
+      </hello>
     </div>
 
     <div class="next-app">
-      <hello></hello>
+      <hello inline-template>
+        <span>
+          {{ translate('Test') }}
+        </span>
+      </hello>
     </div>
 
     <div class="next-app">
-      <hello></hello>
+      <hello inline-template>
+        <span>
+          {{ translate('Test') }}
+          <calendar :events="[{title: 'Sunny Out of Office',start: '2017-08-25',end: '2017-07-27'}]"
+                    locale="en"></calendar>
+        </span>
+      </hello>
     </div>
-
-    <script type="text/x-template" id="template1">
-      <span>{{ translate('Test') }}</span>
-    </script>
 
     <script>
       document.addEventListener('DOMContentLoaded', function () {
@@ -30,7 +40,8 @@
           paths: {
             textFormater: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
             bottle: 'https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.6.1/bottle.min',
-            vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue.min'
+            vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue',
+            calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min'
           }
         });
 
@@ -50,14 +61,27 @@
               '.next-app'
             ]
           })
-          di.factory('components', function () {
+
+          di.factory('calendar', function () {
+            return dependecies.calendar
+          })
+
+          di.factory('hello', function () {
             return {
-              hello: {
-                template: '#template1',
-                inject: ['translate']
+              inject: ['translate', 'calendar'],
+              components: {
+                calendar: 'calendar'
               }
             }
           })
+
+          di.factory('components', function (container) {
+            return {
+              hello: container.hello,
+              calendar: container.calendar
+            }
+          })
+
           di.factory('document', function () {
             return document
           })
@@ -66,14 +90,14 @@
           })
         }
 
-        require(['ui-framework', 'textFormater', 'bottle', 'vue'], function(UiFramework, textFormater, bottle, vue) {
-
+        require(['ui-framework', 'textFormater', 'bottle', 'vue', 'calendar'], function(UiFramework, textFormater, bottle, vue, calendar) {
           var di = new bottle()
           defineServices(di, {
             bottle: bottle,
             UiFramework: UiFramework,
             textFormater: textFormater,
-            vue: vue
+            vue: vue,
+            calendar: calendar
           })
           var container = new UiFramework.Container.Container(di)
           var NewApp = new UiFramework.Core.App(container)
