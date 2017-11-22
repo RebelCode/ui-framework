@@ -44,11 +44,11 @@
             calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min'
           }
         });
-        var dependeciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'calendar']
+        var dependenciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'calendar']
 
-        function defineServices (di, dependecies) {
+        function defineServices (di, dependencies) {
           di.factory('translator', function () {
-            return new dependecies.uiFramework.I18n.FormatTranslator(dependecies.textFormatter.sprintf)
+            return new dependencies.uiFramework.I18n.FormatTranslator(dependencies.textFormatter.sprintf)
           })
           di.factory('translate', function (container) {
             return function (format, params, context) {
@@ -64,7 +64,7 @@
           })
 
           di.factory('calendar', function () {
-            return dependecies.calendar
+            return dependencies.calendar
           })
 
           di.factory('hello', function () {
@@ -87,14 +87,14 @@
             return document
           })
           di.factory('vue', function () {
-            return dependecies.vue
+            return dependencies.vue
           })
         }
 
-        require(dependeciesList, function () {
+        require(dependenciesList, function () {
           var dependencies = {}
-          for (var i = 0; i < dependeciesList.length; i++) {
-            dependencies[dependeciesList[i]] = arguments[i]
+          for (var i = 0; i < dependenciesList.length; i++) {
+            dependencies[dependenciesList[i]] = arguments[i]
           }
           var di = new dependencies.bottle()
 
