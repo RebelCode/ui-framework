@@ -11,7 +11,7 @@ function resolve (dir) {
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
-    'ui-framework': './src/main.js'
+    'uiFramework': './src/main.js'
   },
   output: {
     path: config.build.assetsRoot,
