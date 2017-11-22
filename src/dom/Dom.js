@@ -10,7 +10,7 @@ export default class Dom {
   }
   getElements (selector: string) {
     const elements = this.document.querySelectorAll(selector)
-    if (selector && selector.length > 0) {
+    if (elements && elements.length > 0) {
       return [].slice.call(elements)
     }
     return []

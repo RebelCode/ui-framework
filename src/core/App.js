@@ -51,10 +51,9 @@ export default class App implements AppInterface {
           if (!(components[key] && typeof components[key] === 'string')) {
             continue
           }
-          debugger
           const inject = this[key]
           if (!inject) {
-            throw new Error(`${[key]} not injected!`)
+            throw new Error(`${key} not injected!`)
           }
           components[key] = inject
         }
