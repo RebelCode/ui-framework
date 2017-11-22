@@ -6,11 +6,30 @@ import {ContainerInterface} from '@/container/ContainerInterface'
 import {ExportCapableInterface} from '@/container/ExportCapableInterface'
 import Vue from 'vue'
 
+/**
+ * Class for rendering Vues
+ *
+ * @module Core
+ * @interface AppInterface
+ */
 export default class App implements AppInterface {
   container = {};
+
+  /**
+   * Insert DI container object
+   * @param {object} container - DI container object
+   */
   constructor (container: ContainerInterface & ExportCapableInterface) {
     this.container = container
   }
+
+  /**
+   * Mapping selectors
+   * @param {array}  selectorList - list of selectors
+   * @param {object} components   - components list
+   * @returns {object} - list of instances
+   * @private
+   */
   _registerVues (selectorList: Array<string>, components: {[string]: any}) {
     const elements = {}
     const domDocument = this.container.get('document')
@@ -23,6 +42,14 @@ export default class App implements AppInterface {
     return elements
   }
 
+  /**
+   * Handling element
+   * @param {object} Root       - Vue.js object
+   * @param {array}  components - Vue components
+   * @param {*}      item       - DOM element
+   * @returns {object} - instance
+   * @private
+   */
   _handleElement (Root: Vue, components: {[string]: any}, item: any) {
     for (let key in components) {
       if (!(components.hasOwnProperty(key) && components[key].components)) {
@@ -43,6 +70,11 @@ export default class App implements AppInterface {
     return instance
   }
 
+  /**
+   *
+   * @returns {{created: created}} - mixin for components
+   * @private
+   */
   _componentMixin () {
     return {
       created: function () {
@@ -61,6 +93,10 @@ export default class App implements AppInterface {
     }
   }
 
+  /**
+   *
+   * @returns {{}}
+   */
   init () {
     const sectorList = this.container.get('selectorList')
     const components = this.container.get('components')

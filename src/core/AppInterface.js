@@ -1,4 +1,5 @@
 // @flow
+/** @module Core */
 import Vue from 'vue'
 
 export interface AppInterface {
