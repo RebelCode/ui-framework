@@ -38,7 +38,7 @@
         // get default configuration inside the Bottle instance
         require.config({
           paths: {
-            textFormater: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
+            textFormatter: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
             bottle: 'https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.6.1/bottle.min',
             vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue',
             calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min'
@@ -47,7 +47,7 @@
 
         function defineServices (di, dependecies) {
           di.factory('translator', function () {
-            return new dependecies.UiFramework.I18n.FormatTranslator(dependecies.textFormater.sprintf)
+            return new dependecies.UiFramework.I18n.FormatTranslator(dependecies.textFormatter.sprintf)
           })
           di.factory('translate', function (container) {
             return function (format, params, context) {
@@ -90,12 +90,12 @@
           })
         }
 
-        require(['ui-framework', 'textFormater', 'bottle', 'vue', 'calendar'], function(UiFramework, textFormater, bottle, vue, calendar) {
+        require(['ui-framework', 'textFormatter', 'bottle', 'vue', 'calendar'], function(UiFramework, textFormatter, bottle, vue, calendar) {
           var di = new bottle()
           defineServices(di, {
             bottle: bottle,
             UiFramework: UiFramework,
-            textFormater: textFormater,
+            textFormatter: textFormatter,
             vue: vue,
             calendar: calendar
           })

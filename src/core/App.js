@@ -14,14 +14,11 @@ export default class App implements AppInterface {
   _registerVues (selectorList: Array<string>, components: {[string]: any}) {
     const elements = {}
     const domDocument = this.container.get('document')
-    const DOMManager = new Dom.Dom(domDocument)
+    const dom = new Dom.Dom(domDocument)
     const Vue = this.container.get('vue')
     let Root = Vue.extend()
     selectorList.map((el) => {
-      if (!elements[el]) {
-        elements[el] = []
-      }
-      elements[el] = DOMManager.getElements(el).map(this._handleElement.bind(this, Root, components))
+      elements[el] = dom.getElements(el).map(this._handleElement.bind(this, Root, components))
     })
     return elements
   }
@@ -54,9 +51,10 @@ export default class App implements AppInterface {
           if (!(components[key] && typeof components[key] === 'string')) {
             continue
           }
+          debugger
           const inject = this[key]
           if (!inject) {
-            throw new Error(`${this[key]} not injected!`)
+            throw new Error(`${[key]} not injected!`)
           }
           components[key] = inject
         }
