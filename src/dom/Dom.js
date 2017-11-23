@@ -1,14 +1,16 @@
 // @flow
+import {DomInterface} from './DomInteface'
 
 /**
  * Abstraction for DOM manager
+ * @memberOf Dom
  */
-export default class Dom {
+export default class Dom implements DomInterface {
   document = {};
 
   /**
    * Insert document object
-   * @param {object} document - DOM document object
+   * @param {Document} document - DOM document object
    */
   constructor (document: Document) {
     if (typeof document === 'undefined') {

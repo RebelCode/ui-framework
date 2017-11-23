@@ -1,3 +1,2 @@
-/** @module I18n */
-
+/** @memberOf I18n */
 export {default as I18n} from './api'

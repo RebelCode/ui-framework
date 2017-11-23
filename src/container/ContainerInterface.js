@@ -1,5 +1,8 @@
 // @flow
-/** @module Container */
+
+/**
+ * @memberOf Container
+ */
 export interface ContainerInterface {
   get(key: string): any;
 }

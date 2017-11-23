@@ -1,4 +1,6 @@
-/** @module Core */
+/**
+ * @module Core
+*/
 
 import App from './App'
 

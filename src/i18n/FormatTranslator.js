@@ -4,8 +4,7 @@ import {FormatTranslatorInterface} from './FormatTranslatorInterface'
 
 /**
  * Class for text translating
- * @module I18n
- * @interface FormatTranslatorInterface
+ * @memberOf I18n
  */
 export default class FormatTranslator implements FormatTranslatorInterface {
   formatter: Function;

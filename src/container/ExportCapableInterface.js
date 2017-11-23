@@ -1,5 +1,8 @@
-// flow
-/** @module Container */
+// @flow
+
+/**
+ * @memberOf Container
+ */
 export interface ExportCapableInterface {
   export (): { [string]: any };
 }

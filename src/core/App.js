@@ -1,7 +1,6 @@
 // @flow
-
 import {Dom} from '@/dom'
-import { AppInterface } from '@/core/AppInterface'
+import {AppInterface} from './AppInterface'
 import {ContainerInterface} from '@/container/ContainerInterface'
 import {ExportCapableInterface} from '@/container/ExportCapableInterface'
 import Vue from 'vue'
@@ -9,8 +8,7 @@ import Vue from 'vue'
 /**
  * Class for rendering Vues
  *
- * @module Core
- * @interface AppInterface
+ * @memberOf Core
  */
 export default class App implements AppInterface {
   container = {};
@@ -44,7 +42,7 @@ export default class App implements AppInterface {
 
   /**
    * Handling element
-   * @param {object} Root       - Vue.js object
+   * @param {Vue} Root          - Vue.js object
    * @param {array}  components - Vue components
    * @param {*}      item       - DOM element
    * @returns {object} - instance
@@ -71,7 +69,7 @@ export default class App implements AppInterface {
   }
 
   /**
-   *
+   * Mixin for components
    * @returns {{created: created}} - mixin for components
    * @private
    */
@@ -94,7 +92,7 @@ export default class App implements AppInterface {
   }
 
   /**
-   *
+   * The enter point for the application
    * @returns {{}}
    */
   init () {

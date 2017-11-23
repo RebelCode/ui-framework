@@ -1,14 +1,12 @@
 // @flow
 
-import {ContainerInterface} from '@/container/ContainerInterface'
-import {ExportCapableInterface} from '@/container/ExportCapableInterface'
+import {ContainerInterface} from './ContainerInterface'
+import {ExportCapableInterface} from './ExportCapableInterface'
 
 /**
  * Class for DI container
  *
- * @module Container
- * @interface ContainerInterface
- * @interface ExportCapableInterface
+ * @memberOf Container
  */
 export default class Container implements ContainerInterface, ExportCapableInterface {
   bottle = {};
