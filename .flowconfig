@@ -1,10 +1,11 @@
 [include]
 .*/src/.*
 ./index.html
+
 [ignore]
-.*/node_modules/.*
 .*/__tests__/.*
 .*/coverage/.*
+
 [libs]
 flow-typed
 
