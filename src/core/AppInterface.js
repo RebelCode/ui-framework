@@ -1,5 +1,5 @@
 // @flow
-import Vue from 'vue'
+import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
 
 /**
  * Interface for App class

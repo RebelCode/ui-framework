@@ -3,7 +3,7 @@ import {Dom} from '@/dom'
 import {AppInterface} from './AppInterface'
 import {ContainerInterface} from '@/container/ContainerInterface'
 import {ExportCapableInterface} from '@/container/ExportCapableInterface'
-import Vue from 'vue'
+import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
 
 /**
  * Class for rendering Vues
