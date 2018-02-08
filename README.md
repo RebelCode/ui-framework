@@ -1,6 +1,5 @@
-# booking-str
-
-> A Vue.js project
+# UI Framework
+[![npm (scoped)](https://img.shields.io/npm/v/@rebelcode/ui-framework.svg)]()
 
 ## Build Setup
 

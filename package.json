@@ -1,9 +1,10 @@
 {
-  "name": "booking-str",
-  "version": "1.0.0",
-  "description": "A Vue.js project",
+  "name": "@rebelcode/ui-framework",
+  "version": "0.1.0",
+  "description": "A Vue.js UI Framework",
   "author": "Alex Sinner <sancheskinghtc@gmail.com>",
-  "private": true,
+  "license": "MIT",
+  "main": "dist/static/js/uiFramework.js",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
@@ -12,7 +13,8 @@
     "test": "npm run unit && npm run e2e",
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
     "build": "node build/build.js",
-    "flow": "flow"
+    "flow": "flow",
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
