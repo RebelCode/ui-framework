@@ -6,7 +6,7 @@
     <title>booking-str</title>
   </head>
   <body>
-    <div id="app"></div>
+    <!--<div id="app"></div>-->
     <div id="new-app">
       <hello inline-template>
         <span>
@@ -41,15 +41,40 @@
             textFormatter: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
             bottle: 'https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.6.1/bottle.min',
             vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue',
+            vuex: 'https://cdnjs.cloudflare.com/ajax/libs/vuex/3.0.1/vuex',
             calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min'
           }
         });
-        var dependenciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'calendar']
+        var dependenciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'vuex', 'calendar']
 
         function defineServices (di, dependencies) {
           di.factory('translator', function () {
             return new dependencies.uiFramework.I18n.FormatTranslator(dependencies.textFormatter.sprintf)
           })
+
+          di.factory('vuex', function (container) {
+            var Vue = container.vue,
+              Vuex = dependencies.vuex
+
+            Vue.use(Vuex)
+
+            return Vuex
+          })
+
+          di.factory('vue', function () {
+            var Vue = dependencies.vue
+            Vue.use(dependencies.uiFramework.Core.InjectedComponents)
+            return Vue
+          })
+
+          di.factory('store', function (container) {
+            return new container.vuex.Store({
+              state: {
+                foo: 'bar'
+              }
+            })
+          })
+
           di.factory('translate', function (container) {
             return function (format, params, context) {
               return container.translator.translate(format, params)
@@ -57,8 +82,8 @@
           })
           di.factory('selectorList', function () {
             return [
-              '#app',
-              '#new-app',
+              // '#app',
+              // '#new-app',
               '.next-app'
             ]
           })
@@ -67,13 +92,16 @@
             return dependencies.calendar
           })
 
-          di.factory('hello', function () {
-            return {
+          di.factory('hello', function (container) {
+            return container.vue.extend({
               inject: ['translate', 'calendar'],
+              mounted: function () {
+                console.info('hello', this)
+              },
               components: {
                 calendar: 'calendar'
               }
-            }
+            })
           })
 
           di.factory('components', function (container) {
@@ -86,9 +114,10 @@
           di.factory('document', function () {
             return document
           })
-          di.factory('vue', function () {
-            return dependencies.vue
-          })
+          // di.factory('vue', function () {
+          //   console.info('vue NO extend call')
+          //   return dependencies.vue
+          // })
         }
 
         require(dependenciesList, function () {

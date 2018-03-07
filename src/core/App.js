@@ -29,10 +29,13 @@ export default class App implements AppInterface {
    * @private
    */
   _registerVues (selectorList: Array<string>, components: {[string]: any}) {
+    const Vue = this.container.get('vue')
+    if (!Vue.isInjectedComponentsInstalled) {
+      throw new Error('Injected Components plugin must be installed for UI Framework application')
+    }
     const elements = {}
     const domDocument = this.container.get('document')
     const dom = new Dom.Dom(domDocument)
-    const Vue = this.container.get('vue')
     let Root = Vue.extend()
     selectorList.map((el) => {
       elements[el] = dom.getElements(el).map(this._handleElement.bind(this, Root, components))
@@ -49,46 +52,12 @@ export default class App implements AppInterface {
    * @private
    */
   _handleElement (Root: Vue, components: {[string]: any}, item: any) {
-    for (let key in components) {
-      if (!(components.hasOwnProperty(key) && components[key].components)) {
-        continue
-      }
-      const mixin = this._componentMixin()
-      if (components[key].mixins && Array.isArray(components[key].mixins)) {
-        components[key].mixins.push(mixin)
-        continue
-      }
-      components[key].mixins = [mixin]
-    }
     let instance = new Root({
       components: components,
       provide: this.container.export()
     })
     instance.$mount(item)
     return instance
-  }
-
-  /**
-   * Mixin for components
-   * @returns {{created: created}} - mixin for components
-   * @private
-   */
-  _componentMixin () {
-    return {
-      created: function () {
-        const components = this.$options.components
-        for (let key in components) {
-          if (!(components[key] && typeof components[key] === 'string')) {
-            continue
-          }
-          const inject = this[key]
-          if (!inject) {
-            throw new Error(`${key} not injected!`)
-          }
-          components[key] = inject
-        }
-      }
-    }
   }
 
   /**
