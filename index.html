@@ -10,6 +10,18 @@
     <div id="new-app">
       <hello inline-template>
         <span>
+          <h2>Instance 1: {{ selectValue }}</h2>
+          {{ translate('Test') }}
+        </span>
+      </hello>
+    </div>
+
+    <div class="next-app">
+      <hello inline-template>
+        <span>
+          <h2>Instance 2: {{ selectValue }}</h2>
+          <input type="text" v-model="selectValue">
+          <vueselect :options="['foo', 'bar', 'test']" v-model="selectValue"></vueselect>
           {{ translate('Test') }}
         </span>
       </hello>
@@ -19,14 +31,8 @@
       <hello inline-template>
         <span>
           {{ translate('Test') }}
-        </span>
-      </hello>
-    </div>
-
-    <div class="next-app">
-      <hello inline-template>
-        <span>
-          {{ translate('Test') }}
+          <h2>Instance 3: {{ selectValue }}</h2>
+          <vueselect :options="['foo', 'bar', 'test']" v-model="selectValue"></vueselect>
           <calendar :events="[{title: 'Sunny Out of Office',start: '2017-08-25',end: '2017-07-27'}]"
                     locale="en"></calendar>
         </span>
@@ -40,11 +46,14 @@
           paths: {
             textFormatter: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
             bottle: 'https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.6.1/bottle.min',
-            vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue',
-            calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min'
+            vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.9/vue',
+            vuex: 'https://cdnjs.cloudflare.com/ajax/libs/vuex/3.0.1/vuex',
+
+            calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min',
+            vueselect: 'https://unpkg.com/vue-select@2.0.1/dist/vue-select'
           }
         });
-        var dependenciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'calendar']
+        var dependenciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'vuex', 'calendar', 'vueselect']
 
         function defineServices (di, dependencies) {
           di.factory('translator', function () {
@@ -67,11 +76,26 @@
             return dependencies.calendar
           })
 
+          di.factory('vueselect', function () {
+            return dependencies.vueselect.VueSelect
+          })
+
           di.factory('hello', function () {
             return {
-              inject: ['translate', 'calendar'],
+              inject: ['translate', 'calendar', 'vueselect', 'store'],
+              computed: {
+                selectValue: {
+                  get: function () {
+                    return this.store.state.selectValue
+                  },
+                  set: function (newValue) {
+                    this.store.commit("SET_VALUE", newValue)
+                  }
+                }
+              },
               components: {
-                calendar: 'calendar'
+                calendar: 'calendar',
+                vueselect: 'vueselect'
               }
             }
           })
@@ -79,15 +103,45 @@
           di.factory('components', function (container) {
             return {
               hello: container.hello,
-              calendar: container.calendar
+              calendar: container.calendar,
+              vueselect: container.vueselect
             }
           })
 
           di.factory('document', function () {
             return document
           })
-          di.factory('vue', function () {
+
+          di.factory('_vue', function () {
             return dependencies.vue
+          })
+
+          di.factory('vue', function (container) {
+            var Vue = container._vue.extend()
+
+            Vue.version = container._vue.version
+            Vue.config = container._vue.config
+
+            return Vue
+          })
+
+          di.factory('vuex', function (container) {
+            container.vue.use(dependencies.vuex)
+            return dependencies.vuex
+          })
+
+          di.factory('store', function (container) {
+            var Vuex = container.vuex
+            return new Vuex.Store({
+              state: {
+                selectValue: 'foo'
+              },
+              mutations: {
+                SET_VALUE (state, value) {
+                  state.selectValue = value
+                }
+              }
+            })
           })
         }
 
