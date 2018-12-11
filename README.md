@@ -1,5 +1,7 @@
 # UI Framework
 
+[![npm (scoped)](https://img.shields.io/npm/v/@rebelcode/ui-framework.svg)]()
+
 Application framework, which has as its main purpose the creation of root Vue instances for specified regions of the page.
 
 The framework is modular, each module completely contained in a folder under the same root. Each module also has as its entry point an index.js file, which returns the API of the module defined in api.js in the same folder. The API can be used to access module units from outside of the application, and represents a hierarchy of namespaces. Which modules are active, and are thus made part of the API, is determined by [`main.js`](src/main.js).

@@ -16,7 +16,7 @@ module.exports = {
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
-    libraryTarget: 'amd',
+    libraryTarget: 'umd',
     library: '[name]',
     umdNamedDefine: true,
     publicPath: process.env.NODE_ENV === 'production'
