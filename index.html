@@ -35,6 +35,7 @@
           <vueselect :options="['foo', 'bar', 'test']" v-model="selectValue"></vueselect>
           <calendar :events="[{title: 'Sunny Out of Office',start: '2017-08-25',end: '2017-07-27'}]"
                     locale="en"></calendar>
+          <button @click="testPlugin">boom</button>
         </span>
     </hello>
 </div>
@@ -48,9 +49,27 @@
         if (window.UiFramework.emit) {
           window.UiFramework.emit('plugin-loaded', {name, plugin})
         }
+        console.info('plugin registered', name, {plugin, priority}, window.UiFramework.plugins)
       }
     }
   }
+</script>
+
+<script>
+    window.UiFramework.registerPlugin('test-plugin', {
+      register: function (services) {
+        services['testService'] = function (container) {
+          return function () {
+            console.info('call from registered test service')
+          }
+        }
+        console.log('registered test service', services)
+        return services
+      },
+      run: function (container) {
+        console.log('running test service', container)
+      }
+    })
 </script>
 
 <script>
@@ -96,7 +115,7 @@
         },
         hello: function () {
           return {
-            inject: ['translate', 'calendar', 'vueselect', 'store'],
+            inject: ['translate', 'calendar', 'vueselect', 'store', 'testService'],
             computed: {
               selectValue: {
                 get: function () {
@@ -105,6 +124,11 @@
                 set: function (newValue) {
                   this.store.commit('SET_VALUE', newValue)
                 }
+              }
+            },
+            methods: {
+              testPlugin: function () {
+                this.testService()
               }
             },
             components: {
@@ -156,6 +180,7 @@
 
       var containerFactory = new dependencies.uiFramework.Container.ContainerFactory(dependencies.bottle)
       var app = new dependencies.uiFramework.Core.App(containerFactory, services)
+      app.use(['test-plugin'])
       app.init([
         '#app',
         '#new-app',
