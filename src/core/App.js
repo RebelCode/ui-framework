@@ -1,9 +1,9 @@
 // @flow
 import {Dom} from '@/dom'
-import {AppInterface} from './AppInterface'
-import {ContainerInterface} from '@/container/ContainerInterface'
-import {ExportCapableInterface} from '@/container/ExportCapableInterface'
+import { AppInterface } from './AppInterface'
 import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
+import ContainerFactory from '../container/ContainerFactory'
+import { PluginInterface } from './PluginInterface'
 
 /**
  * Represents an application that uses the UI framework approach.
@@ -23,27 +23,87 @@ import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
  * @memberOf Core
  */
 export default class App implements AppInterface {
+  services = {};
+
+  containerFactory = {};
+
   container = {};
+
+  plugins = [];
 
   /**
    * Application constructor.
    *
-   * @param {object} container DI container object
+   * @param {ContainerFactory} containerFactory
+   * @param services
    */
-  constructor (container: ContainerInterface & ExportCapableInterface) {
-    this.container = container
+  constructor (containerFactory: ContainerFactory, services: { [string]: Function }) {
+    this.containerFactory = containerFactory
+    this.services = services
+  }
+
+  /**
+   * @param {string[]} plugins List of plugins names.
+   */
+  use (plugins: Array<string> = []) {
+    this.plugins = plugins
   }
 
   /**
    * The enter point for the application.
    *
-   * @returns {[string]: array}   The registered Vue instances.
+   * @param {array} selectorsList  A list of selectors for HTML elements.
+   *
+   * @return {Promise<{[string]: Array<Vue>}>}  The registered Vue instances.
    *                              A map, where the key is a selector, and the value is a list of Vue instances.
    */
-  init () {
-    const sectorList = this.container.get('selectorList')
+  init (selectorsList: Array<string>): Promise<any> {
+    return this._loadPlugins()
+      .then((plugins) => {
+        this._runApplication(selectorsList, plugins)
+      })
+  }
+
+  /**
+   *
+   * @return {Promise<{[string]: Array<Vue>}>}
+   */
+  _loadPlugins (): Promise<any> {
+    return new Promise((resolve) => {
+      if (this._allPluginsLoaded(this.plugins)) {
+        resolve(this._getLoadedPlugins(this.plugins))
+      } else {
+        window.UiFramework.subscribe('plugin-loaded', () => {
+          if (this._allPluginsLoaded(this.plugins)) {
+            resolve(this._getLoadedPlugins(this.plugins))
+          }
+        })
+      }
+    })
+  }
+
+  _runApplication (selectorsList: Array<string>, plugins: Array<PluginInterface>) {
+    this.services = plugins.reduce((services, plugin) => {
+      services = plugin.register(services)
+      return services
+    }, this.services)
+
+    this.container = this.containerFactory.make(this.services)
+
     const components = this.container.get('components')
-    return this._registerVues(sectorList, components)
+    return this._registerVues(selectorsList, components)
+  }
+
+  _allPluginsLoaded (pluginsKeys: Array<string>): boolean {
+    return pluginsKeys.reduce((result, pluginName) => {
+      return result && !!window.UiFramework.plugins[pluginName]
+    }, true)
+  }
+
+  _getLoadedPlugins (pluginsKeys: Array<string>) {
+    return pluginsKeys
+      .map(pluginName => window.UiFramework.plugins[pluginName])
+      .filter(plugin => !!plugin)
   }
 
   /**
