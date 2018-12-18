@@ -3,7 +3,7 @@ import {Dom} from '@/dom'
 import { AppInterface } from './AppInterface'
 import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
 import ContainerFactory from '../container/ContainerFactory'
-import { PluginInterface } from './PluginInterface'
+import type { PluginInterface } from './PluginInterface'
 
 /**
  * Represents an application that uses the UI framework approach.
@@ -65,6 +65,7 @@ export default class App implements AppInterface {
   }
 
   /**
+   * Wait for all plugins are loaded.
    *
    * @return {Promise<{[string]: Array<Vue>}>}
    */
@@ -82,28 +83,53 @@ export default class App implements AppInterface {
     })
   }
 
+  /**
+   * Prepare container and run the application.
+   *
+   * @param selectorsList
+   * @param plugins
+   */
   _runApplication (selectorsList: Array<string>, plugins: Array<PluginInterface>) {
-    this.services = plugins.reduce((services, plugin) => {
-      services = plugin.register(services)
-      return services
-    }, this.services)
+    this.services = plugins
+      .reduce((services, plugin) => {
+        services = plugin.register(services)
+        return services
+      }, this.services)
 
     this.container = this.containerFactory.make(this.services)
+
+    plugins.forEach(plugin => plugin.run(this.container))
 
     const components = this.container.get('components')
     return this._registerVues(selectorsList, components)
   }
 
+  /**
+   * Check whether all plugins are loaded.
+   *
+   * @param pluginsKeys
+   *
+   * @return {boolean}
+   */
   _allPluginsLoaded (pluginsKeys: Array<string>): boolean {
     return pluginsKeys.reduce((result, pluginName) => {
       return result && !!window.UiFramework.plugins[pluginName]
     }, true)
   }
 
-  _getLoadedPlugins (pluginsKeys: Array<string>) {
+  /**
+   * Get list of loaded plugins.
+   *
+   * @param pluginsKeys
+   *
+   * @return {PluginInterface[]}
+   */
+  _getLoadedPlugins (pluginsKeys: Array<string>): Array<PluginInterface> {
     return pluginsKeys
       .map(pluginName => window.UiFramework.plugins[pluginName])
       .filter(plugin => !!plugin)
+      .sort((a, b) => a.priority - b.piority)
+      .map(a => a.plugin)
   }
 
   /**
