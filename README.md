@@ -4,6 +4,46 @@
 
 Application framework, which has as its main purpose the creation of root Vue instances for specified regions of the page.
 
+### Sample application
+Let's create an application that depends on some`test-plugin` plugin. Plugins are optional add-ons that can be used for extending the application.
+```js
+import {Container, Core} from '@rebelcode/ui-framework'
+
+const containerFactory = new Container.ContainerFactory(dependencies.bottle)
+const app = new Core.App(containerFactory, services)
+
+app.use(['test-plugin'])
+app.init([
+  '#app',
+  '#new-app',
+  '.next-app'
+])
+```
+`test-plugin` can be loaded asynchronously just by dropping `<script ...` tag in the HTML. Every plugin should implement `PluginInterface` and register itself using global `UiFramework` object:
+```js
+class TestPlugin implements PluginInterface {
+  register (services) {
+    services['add-service'] = function (container) {
+      return function (a, b) {
+        return contain.hooks.apply('add-10', this, a + b)
+      }
+    }
+    return services
+  }
+  
+  run (container) {
+    container.hooks.register('add-10', function (data) {
+      return data + 10
+    })
+  }
+}
+// ...
+UiFramework.registerPlugin('test-plugin', new TestPlugin(), 10)
+```
+Once everything is ready, application will register and then run all plugins which is used. `TestPlugin` (for example) will add new service and register new hook when it is ran by the application.
+
+### Modularity
+
 The framework is modular, each module completely contained in a folder under the same root. Each module also has as its entry point an index.js file, which returns the API of the module defined in api.js in the same folder. The API can be used to access module units from outside of the application, and represents a hierarchy of namespaces. Which modules are active, and are thus made part of the API, is determined by [`main.js`](src/main.js).
 
 - Allows designating Vue-renderable regions of the page by selector. Supports multiple elements per selector, e.g. if a class-based selector matches multiple DOM elements.

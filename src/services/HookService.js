@@ -1,7 +1,6 @@
 // @flow
-
 type Hook = {
-  callback: Function,
+  callback: (data: any, context: any) => any,
   priority: number
 }
 
@@ -49,7 +48,7 @@ export default class HookService {
    * @param data Data that should be modified by hooks sequence.
    * @param context Context for hook function.
    */
-  apply (name: string, caller: Function, data: any, context: any = {}) {
+  apply (name: string, caller: any, data: any, context: any = {}) {
     let hooks = this.hooks[name] ? this.hooks[name] : []
     hooks = hooks.sort((a, b) => a.priority - b.priority)
 
