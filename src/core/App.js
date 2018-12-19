@@ -4,6 +4,8 @@ import { AppInterface } from './AppInterface'
 import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
 import ContainerFactory from '../container/ContainerFactory'
 import type { PluginInterface } from './PluginInterface'
+import type { ContainerInterface } from '../container/ContainerInterface'
+import type { ExportCapableInterface } from '../container/ExportCapableInterface'
 
 /**
  * Represents an application that uses the UI framework approach.
@@ -23,13 +25,25 @@ import type { PluginInterface } from './PluginInterface'
  * @memberOf Core
  */
 export default class App implements AppInterface {
-  services = {};
+  /**
+   * @property services The map of services definitions where key is a string, and value is a service factory function.
+   */
+  services: {[string]: Function};
 
-  containerFactory = {};
+  /**
+   * @property containerFactory Container factory.
+   */
+  containerFactory: ContainerFactory;
 
-  container = {};
+  /**
+   * @property container Main application container.
+   */
+  container: ContainerInterface & ExportCapableInterface;
 
-  plugins = [];
+  /**
+   * @property plugins The list of plugins for the application.
+   */
+  plugins: Array<string>;
 
   /**
    * Application constructor.

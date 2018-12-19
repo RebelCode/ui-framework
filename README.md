@@ -32,7 +32,10 @@ The [**Container module**](src/container/api.js) contains units that deal with v
 The [**I18n module**](src/i18n/api.js) deals with internationalization. It allows usage of any internationalization mechanism that can translate strings with `sprintf()` style placeholders.
 
 ### Dom module
-The [**Dom module**](src/dom/api.js) abstracts the DOM, which helps avoid dealing with the BOM, and can be very useful for running tests on the server, because the DOM can then be mocked.
+The [**Dom module**](src/dom/api.js) abstracts the DOM, which helps avoid dealing with the DOM, and can be very useful for running tests on the server, because the DOM can then be mocked.
+
+### Service module
+The [**Service module**](src/services/api.js) provides useful services for building rich applications.
 
 ## Build Setup
 
