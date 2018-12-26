@@ -36,6 +36,7 @@
           <calendar :events="[{title: 'Sunny Out of Office',start: '2017-08-25',end: '2017-07-27'}]"
                     locale="en"></calendar>
           <button @click="testPlugin">boom</button>
+          <button @click="testResolution"> BABAM!</button>
         </span>
     </hello>
 </div>
@@ -79,7 +80,7 @@
       paths: {
         textFormatter: 'https://unpkg.com/sprintf-js@1.1.1/dist/sprintf.min',
         bottle: 'https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.6.1/bottle.min',
-        vue: 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.4/vue',
+        vue: 'https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue',
         vuex: 'https://cdnjs.cloudflare.com/ajax/libs/vuex/3.0.1/vuex',
         calendar: 'https://cdn.jsdelivr.net/npm/vue2-full-calendar@1.0.15/dist/vue-fullcalendar.min',
         vueselect: 'https://unpkg.com/vue-select@2.0.1/dist/vue-select'
@@ -88,11 +89,24 @@
 
     var dependenciesList = ['uiFramework', 'textFormatter', 'bottle', 'vue', 'vuex', 'calendar', 'vueselect']
 
+    class FooService {
+      constructor (translator) {
+        this.translator = translator
+      }
+      say () {
+        console.info('WHO THE FUCK IS TRANSLATOR???', this.translator)
+      }
+    }
+    FooService.$inject = true
+    // FooService.$injectAs = 'barService'
+
     function defineServices (dependencies) {
       return {
-        translator: function () {
-          return new dependencies.uiFramework.I18n.FormatTranslator(dependencies.textFormatter.sprintf)
+        uiFramework: dependencies.uiFramework,
+        translator: function (uiFramework) {
+          return new uiFramework.I18n.FormatTranslator(dependencies.textFormatter.sprintf)
         },
+        FooService,
         vue: function (container) {
           var Vue = container._vue.extend()
           Vue.use(dependencies.uiFramework.Core.InjectedComponents)
@@ -115,7 +129,7 @@
         },
         hello: function () {
           return {
-            inject: ['translate', 'calendar', 'vueselect', 'store', 'testService'],
+            inject: ['translate', 'calendar', 'vueselect', 'store', 'testService', 'fooService'],
             computed: {
               selectValue: {
                 get: function () {
@@ -129,6 +143,9 @@
             methods: {
               testPlugin: function () {
                 this.testService()
+              },
+              testResolution: function () {
+                this.fooService.say()
               }
             },
             components: {

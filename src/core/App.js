@@ -114,6 +114,9 @@ export default class App implements AppInterface {
 
     plugins.forEach(plugin => plugin.run(this.container))
 
+    const uiFramework = this.container.get('uiFramework')
+    console.info(uiFramework)
+
     const components = this.container.get('components')
     return this._registerVues(selectorsList, components)
   }
