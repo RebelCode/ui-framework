@@ -66,15 +66,15 @@ export default class App implements AppInterface {
   /**
    * The enter point for the application.
    *
-   * @param {array} selectorsList  A list of selectors for HTML elements.
+   * @param {array} selectorsMap  A map of selectors for HTML elements where key is selector and value is the app service key.
    *
    * @return {Promise<{[string]: Array<Vue>}>}  The registered Vue instances.
    *                              A map, where the key is a selector, and the value is a list of Vue instances.
    */
-  init (selectorsList: Array<string>): Promise<any> {
+  init (selectorsMap: {[string]: string}): Promise<any> {
     return this._loadPlugins()
       .then((plugins) => {
-        this._runApplication(selectorsList, plugins)
+        this._runApplication(selectorsMap, plugins)
       })
   }
 
@@ -100,10 +100,10 @@ export default class App implements AppInterface {
   /**
    * Prepare container and run the application.
    *
-   * @param selectorsList
+   * @param {array} selectorsMap  A map of selectors for HTML elements where key is selector and value is the app service key.
    * @param plugins
    */
-  _runApplication (selectorsList: Array<string>, plugins: Array<PluginInterface>) {
+  _runApplication (selectorsMap: {[string]: string}, plugins: Array<PluginInterface>) {
     this.services = plugins
       .reduce((services, plugin) => {
         services = plugin.register(services)
@@ -117,8 +117,7 @@ export default class App implements AppInterface {
     const uiFramework = this.container.get('uiFramework')
     console.info(uiFramework)
 
-    const components = this.container.get('components')
-    return this._registerVues(selectorsList, components)
+    return this._registerVues(selectorsMap)
   }
 
   /**
@@ -155,15 +154,13 @@ export default class App implements AppInterface {
    * The result will be a multitude of Vue instances for all elements identified by selectors in the given selector list.
    * Each such instance will have local access to all components from the given component list.
    *
-   * @param {array} selectorList  A list of selectors for HTML elements.
-   * @param {object} components   Components that will be available to every Vue instance registered for a selector.
+   * @param {array} selectorsMap  A map of selectors for HTML elements where key is selector and value is the app service key.
    *
    * @returns {[string]: array}   The registered Vue instances.
    *                              A map, where the key is a selector, and the value is a list of Vue instances.
-   *
    * @private
    */
-  _registerVues (selectorList: Array<string>, components: {[string]: any}) {
+  _registerVues (selectorsMap: {[string]: string}) {
     const Vue = this.container.get('vue')
     if (!Vue.isInjectedComponentsInstalled) {
       throw new Error('Injected Components plugin must be installed for UI Framework application')
@@ -172,8 +169,8 @@ export default class App implements AppInterface {
     const domDocument = this.container.get('document')
     const dom = new Dom.Dom(domDocument)
     let Root = Vue.extend()
-    selectorList.map((el) => {
-      elements[el] = dom.getElements(el).map(this._handleElement.bind(this, Root, components))
+    Object.keys(selectorsMap).map((el) => {
+      elements[el] = dom.getElements(el).map(this._handleElement.bind(this, Root, selectorsMap[el]))
     })
     return elements
   }
@@ -187,16 +184,18 @@ export default class App implements AppInterface {
    * Components may have standard mixins added.
    *
    * @param {Vue} Root          Vue constructor.
-   * @param {array} components  Vue component definitions.
+   * @param {string} appComponentKey  Vue component definitions.
    * @param {*} item            DOM element
    *
    * @returns {object}          The new Vue instance, configured for the DOM element.
    *
    * @private
    */
-  _handleElement (Root: Vue, components: {[string]: any}, item: any) {
+  _handleElement (Root: Vue, appComponentKey: string, item: any) {
     let instance = new Root({
-      components: components,
+      components: {
+        [appComponentKey]: this.container.get(appComponentKey)
+      },
       provide: this.container.export()
     })
     instance.$mount(item)

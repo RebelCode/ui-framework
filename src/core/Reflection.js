@@ -27,10 +27,8 @@ export default class Reflection {
       v()
       return false
     } catch (error) {
-      if (/^Class constructor/.test(error.message) || /class as/.test(error.message)) {
-        return true
-      }
-      return false
+      console.warn(error.message)
+      return /constructor/.test(error.message) || /class as/.test(error.message)
     }
   }
 
@@ -42,5 +40,10 @@ export default class Reflection {
       str: obj.toString(),
       isClass: Reflection.isClass(obj)
     })
+  }
+
+  static isAnonymous (func) {
+    const match = func.toString().match(/^function ([^\s]+) \(\)/)
+    return !match || !match[1]
   }
 }
