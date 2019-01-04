@@ -97,14 +97,19 @@
         console.info('WHO IS THE TRANSLATOR???', this.translator)
       }
     }
-    FooService.$inject = true
-    FooService.$resolveInjections = ['translator']
+    FooService.$injectable = true
+    FooService.$injectParams = {
+      translator: {
+        from: "translator"
+      }
+    }
+    FooService.$injectNewInstance = true
     // FooService.$injectAs = 'barService'
 
     function defineServices (dependencies) {
       return {
         uiFramework: dependencies.uiFramework,
-        translator: function (uiFramework) {
+        translator: function ({uiFramework}) {
           return new uiFramework.I18n.FormatTranslator(dependencies.textFormatter.sprintf)
         },
         FooService,
@@ -119,13 +124,13 @@
           return Vue
         },
         document: document,
-        translate: function (translator) {
+        translate: function ({translator}) {
           return function (format, params, context) {
             return translator.translate(format, params)
           }
         },
-        calendar: dependencies.calendar,
-        vueselect: dependencies.vueselect.VueSelect,
+        calendar: () => dependencies.calendar,
+        vueselect: () => dependencies.vueselect.VueSelect,
         hello: function () {
           return {
             inject: ['translate', 'store', 'testService', 'fooService'],
@@ -153,11 +158,11 @@
             }
           }
         },
-        Vuex: function (vue) {
+        Vuex: function ({vue}) {
           vue.use(dependencies.vuex)
           return dependencies.vuex
         },
-        store: function (Vuex) {
+        store: function ({Vuex}) {
           return new Vuex.Store({
             state: {
               selectValue: 'foo'

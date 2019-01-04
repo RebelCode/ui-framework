@@ -28,61 +28,66 @@ export default class ContainerFactory {
   make (definitions: {[string]: Function}): Container {
     const bottle = new this.Bottle()
 
+    const deepGet = (container, path, defaultValue) => {
+      const pathParts = path.split('.')
+      let lastMatch = defaultValue
+      for (let pathPart of pathParts) {
+        if (!container.hasOwnProperty(pathPart)) {
+          return defaultValue
+        }
+        lastMatch = container[pathPart]
+        if (!lastMatch) {
+          return defaultValue
+        }
+      }
+      return lastMatch
+    }
+
     for (const serviceName of Object.keys(definitions)) {
-      const isClassConstructor = Reflection.isClass(definitions[serviceName])
       bottle.provider(serviceName, function () {
         /**
-         * If service definition is a plain object, container
-         * will return it on resolution.
+         * If service definition is not marked as $injectable,
+         * treat it as a simple factory function.
          */
         if (!Reflection.isFunction(definitions[serviceName])) {
           this.$get = () => definitions[serviceName]
           return
         }
-
-        const args = Reflection.getArguments(definitions[serviceName])
-
-        /**
-         * If service definition has no args or has one arg (_ref appears when spread is used),
-         * treat the service as a factory function.
-         */
-        if (!isClassConstructor && (!args.length || args[0] === 'container' || args[0].indexOf('_ref') !== -1)) {
+        if (!definitions[serviceName].$injectable) {
           this.$get = definitions[serviceName]
           return
         }
 
-        if (!isClassConstructor) {
-          this.$get = function (container) {
-            let argsValues = args.reduce((values, arg) => {
-              values.push(container[arg])
-              return values
-            }, [])
-            return definitions[serviceName](...argsValues)
-          }
-          return
-        }
+        const args = Object.keys(definitions[serviceName].$injectParams)
 
         this.$get = function (container) {
-          return definitions[serviceName]
+          let argsValues = args.reduce((values, argName) => {
+            const path = definitions[serviceName].$injectParams[argName].from
+            const defaultValue = definitions[serviceName].$injectParams[argName].default
+            values.push(deepGet(container, path, defaultValue))
+            return values
+          }, [])
+          return definitions[serviceName](...argsValues)
         }
       })
 
       /**
        * Inject instance if this is a class constructor and is injectable.
        */
-      const isInjectable = !!(definitions[serviceName].$inject || definitions[serviceName].$injectAs)
-      if (isClassConstructor && isInjectable) {
+      if (definitions[serviceName].$injectNewInstance) {
         const lowercaseFirstLetter = (string) => {
           return string.charAt(0).toLowerCase() + string.slice(1)
         }
 
-        const args = Reflection.getArguments(definitions[serviceName])
+        const args = Object.keys(definitions[serviceName].$injectParams)
         const name = definitions[serviceName].$injectAs || lowercaseFirstLetter(serviceName)
 
         bottle.provider(name, function () {
           this.$get = function (container) {
-            let argsValues = args.reduce((values, arg) => {
-              values.push(container[arg])
+            let argsValues = args.reduce((values, argName) => {
+              const path = definitions[serviceName].$injectParams[argName].from
+              const defaultValue = definitions[serviceName].$injectParams[argName].default
+              values.push(deepGet(container, path, defaultValue))
               return values
             }, [])
             return new definitions[serviceName](...argsValues)

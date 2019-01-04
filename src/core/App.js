@@ -109,13 +109,8 @@ export default class App implements AppInterface {
         services = plugin.register(services)
         return services
       }, this.services)
-
     this.container = this.containerFactory.make(this.services)
-
     plugins.forEach(plugin => plugin.run(this.container))
-
-    const uiFramework = this.container.get('uiFramework')
-    console.info(uiFramework)
 
     return this._registerVues(selectorsMap)
   }
