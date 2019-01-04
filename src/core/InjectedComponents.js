@@ -18,7 +18,7 @@ export default {
           if (!components[key] || typeof components[key] !== 'string') {
             continue
           }
-          const inject = container.get(key)
+          const inject = container[key]
           if (!inject) {
             throw new Error(`${key} service is not defined!`)
           }

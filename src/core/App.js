@@ -54,6 +54,7 @@ export default class App implements AppInterface {
   constructor (containerFactory: ContainerFactory, services: { [string]: Function }) {
     this.containerFactory = containerFactory
     this.services = services
+    this.plugins = []
   }
 
   /**
