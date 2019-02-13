@@ -1,5 +1,5 @@
 export default {
-  install (Vue) {
+  install (Vue, {container}) {
     /*
      * Add flag that indicate that plugin is installed and
      * components can be injected
@@ -18,9 +18,9 @@ export default {
           if (!components[key] || typeof components[key] !== 'string') {
             continue
           }
-          const inject = this[key]
+          const inject = container[key]
           if (!inject) {
-            throw new Error(`${key} not injected!`)
+            throw new Error(`${key} service is not defined!`)
           }
           components[key] = inject
         }

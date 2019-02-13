@@ -4,5 +4,5 @@
  * @memberOf Core
  */
 export interface AppInterface {
-  init (selectorsList: Array<string>): Promise<any>;
+  init (selectorsMap: {[string]: string}): Promise<any>;
 }
