@@ -1,9 +1,11 @@
 // @flow
 import {Dom} from '@/dom'
-import {AppInterface} from './AppInterface'
-import {ContainerInterface} from '@/container/ContainerInterface'
-import {ExportCapableInterface} from '@/container/ExportCapableInterface'
+import { AppInterface } from './AppInterface'
 import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
+import ContainerFactory from '../container/ContainerFactory'
+import type { PluginInterface } from './PluginInterface'
+import type { ContainerInterface } from '../container/ContainerInterface'
+import type { ExportCapableInterface } from '../container/ExportCapableInterface'
 
 /**
  * Represents an application that uses the UI framework approach.
@@ -23,27 +25,125 @@ import type Vue from 'vue-flow-definitions/definitions/vue_v2.x.x/vue_v2.x.x'
  * @memberOf Core
  */
 export default class App implements AppInterface {
-  container = {};
+  /**
+   * @property services The map of services definitions where key is a string, and value is a service factory function.
+   */
+  services: {[string]: Function};
+
+  /**
+   * @property containerFactory Container factory.
+   */
+  containerFactory: ContainerFactory;
+
+  /**
+   * @property container Main application container.
+   */
+  container: ContainerInterface & ExportCapableInterface;
+
+  /**
+   * @property plugins The list of plugins for the application.
+   */
+  plugins: Array<string>;
 
   /**
    * Application constructor.
    *
-   * @param {object} container DI container object
+   * @param {ContainerFactory} containerFactory
+   * @param services
    */
-  constructor (container: ContainerInterface & ExportCapableInterface) {
-    this.container = container
+  constructor (containerFactory: ContainerFactory, services: { [string]: Function }) {
+    this.containerFactory = containerFactory
+    this.services = services
+  }
+
+  /**
+   * @param {string[]} plugins List of plugins names.
+   */
+  use (plugins: Array<string> = []) {
+    this.plugins = plugins
   }
 
   /**
    * The enter point for the application.
    *
-   * @returns {[string]: array}   The registered Vue instances.
+   * @param {array} selectorsList  A list of selectors for HTML elements.
+   *
+   * @return {Promise<{[string]: Array<Vue>}>}  The registered Vue instances.
    *                              A map, where the key is a selector, and the value is a list of Vue instances.
    */
-  init () {
-    const sectorList = this.container.get('selectorList')
+  init (selectorsList: Array<string>): Promise<any> {
+    return this._loadPlugins()
+      .then((plugins) => {
+        this._runApplication(selectorsList, plugins)
+      })
+  }
+
+  /**
+   * Wait for all plugins are loaded.
+   *
+   * @return {Promise<{[string]: Array<Vue>}>}
+   */
+  _loadPlugins (): Promise<any> {
+    return new Promise((resolve) => {
+      if (this._allPluginsLoaded(this.plugins)) {
+        resolve(this._getLoadedPlugins(this.plugins))
+      } else {
+        window.UiFramework.subscribe('plugin-loaded', () => {
+          if (this._allPluginsLoaded(this.plugins)) {
+            resolve(this._getLoadedPlugins(this.plugins))
+          }
+        })
+      }
+    })
+  }
+
+  /**
+   * Prepare container and run the application.
+   *
+   * @param selectorsList
+   * @param plugins
+   */
+  _runApplication (selectorsList: Array<string>, plugins: Array<PluginInterface>) {
+    this.services = plugins
+      .reduce((services, plugin) => {
+        services = plugin.register(services)
+        return services
+      }, this.services)
+
+    this.container = this.containerFactory.make(this.services)
+
+    plugins.forEach(plugin => plugin.run(this.container))
+
     const components = this.container.get('components')
-    return this._registerVues(sectorList, components)
+    return this._registerVues(selectorsList, components)
+  }
+
+  /**
+   * Check whether all plugins are loaded.
+   *
+   * @param pluginsKeys
+   *
+   * @return {boolean}
+   */
+  _allPluginsLoaded (pluginsKeys: Array<string>): boolean {
+    return pluginsKeys.reduce((result, pluginName) => {
+      return result && !!window.UiFramework.plugins[pluginName]
+    }, true)
+  }
+
+  /**
+   * Get list of loaded plugins.
+   *
+   * @param pluginsKeys
+   *
+   * @return {PluginInterface[]}
+   */
+  _getLoadedPlugins (pluginsKeys: Array<string>): Array<PluginInterface> {
+    return pluginsKeys
+      .map(pluginName => window.UiFramework.plugins[pluginName])
+      .filter(plugin => !!plugin)
+      .sort((a, b) => a.priority - b.piority)
+      .map(a => a.plugin)
   }
 
   /**

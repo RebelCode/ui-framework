@@ -1,3 +1,9 @@
+// @flow
+type Hook = {
+  callback: (data: any, context: any) => any,
+  priority: number
+}
+
 /**
  * Implementation of WP-like hooks mechanism. It allows
  * to change any sort of data on demand.
@@ -7,6 +13,8 @@
  * @memberOf Services
  */
 export default class HookService {
+  hooks: {[string]: Array<Hook>};
+
   /**
    * @constructor
    *
@@ -21,11 +29,11 @@ export default class HookService {
    *
    * @since [*next-version*]
    *
-   * @param {string} name The hook name.
-   * @param {Function} callback Hook callback function.
-   * @param {number} priority Priority for hook.
+   * @param name The hook name.
+   * @param callback Hook callback function.
+   * @param priority Priority for hook.
    */
-  register (name, callback, priority = 10) {
+  register (name: string, callback: Function, priority: number = 10) {
     this.hooks[name] = this.hooks[name] ? this.hooks[name] : []
     this.hooks[name].push({callback, priority})
   }
@@ -35,12 +43,12 @@ export default class HookService {
    *
    * @since [*next-version*]
    *
-   * @param {string} name The hook name.
-   * @param {any} caller This context for callback function.
-   * @param {any} data Data that should be modified by hooks sequence.
-   * @param {any} context Context for hook function.
+   * @param name The hook name.
+   * @param caller This context for callback function.
+   * @param data Data that should be modified by hooks sequence.
+   * @param context Context for hook function.
    */
-  apply (name, caller, data, context) {
+  apply (name: string, caller: any, data: any, context: any = {}) {
     let hooks = this.hooks[name] ? this.hooks[name] : []
     hooks = hooks.sort((a, b) => a.priority - b.priority)
 
